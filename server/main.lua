@@ -244,6 +244,7 @@ function loadESXPlayer(identifier, playerId)
 			coords = xPlayer.getCoords(),
 			identifier = xPlayer.getIdentifier(),
 			inventory = xPlayer.getInventory(),
+			needs = xPlayer.getNeeds(),
 			job = xPlayer.getJob(),
 			loadout = xPlayer.getLoadout(),
 			maxWeight = xPlayer.getMaxWeight(),

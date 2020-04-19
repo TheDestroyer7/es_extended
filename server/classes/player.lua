@@ -498,5 +498,46 @@ function CreateExtendedPlayer(playerId, identifier, group, accounts, inventory, 
 		self.triggerEvent('esx:showHelpNotification', msg, thisFrame, beep, duration)
 	end
 
+	self.getNeeds = function()
+		local processed = false
+		local needsReturn 
+		MySQL.Async.fetchScalar("SELECT `needs` FROM `users` WHERE `identifier` = @identifier", {['@identifier'] = self.getIdentifier()}, function(needs)
+			if needs ~= nil then
+				needsReturn = json.decode(needs)
+				processed = true
+			else
+				needsReturn = { ['stress'] = 0, ['hunger'] = 1000000, ['thirst'] = 1000000, ['drugs'] = 0}
+				MySQL.Async.execute("UPDATE `users` SET `needs` = @needs WHERE `identifier` = @identifier", {['@needs'] = json.encode(needsReturn), ['@identifier'] = self.getIdentifier()}, function(done)
+					if done == 1 then
+						processed = true
+					end
+				end)
+			end
+		end)
+		repeat Wait(0) until processed == true
+		return needsReturn
+	end
+
+	self.updateNeeds = function(needs)
+		local processed = false
+		local success = false
+		if needs ~= nil then
+			MySQL.Async.execute("UPDATE `users` SET `needs` = @needs WHERE `identifier` = @identifier", {['@needs'] = json.encode(needs), ['@identifier'] = self.getIdentifier()}, function(done)
+				if done == 1 then
+					success = true
+					processed = true
+				else
+					success = false
+					processed = true
+				end
+			end)
+		else
+			success = false 
+			processed = true
+		end
+		repeat Wait(0) until processed == true
+		return success
+	end
+	
 	return self
 end
